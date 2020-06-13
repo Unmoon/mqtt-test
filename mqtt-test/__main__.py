@@ -1,5 +1,6 @@
 import logging
 import time
+
 from .clients.anotherclient import AnotherClient
 from .clients.testclient import TestClient
 
@@ -19,7 +20,6 @@ class MQTT:
 
 
 def main():
-    global clients
     mqtt = MQTT()
     clients.append(TestClient(mqtt))
     clients.append(AnotherClient(mqtt))
@@ -27,20 +27,25 @@ def main():
     while True:
         try:
             time.sleep(1)
-            mqtt.on_message("message_me_back")
+            mqtt.publish("message_me_back")
             time.sleep(1)
-            mqtt.on_message("msg")
+            mqtt.publish("msg")
             time.sleep(1)
-            mqtt.on_message("abc")
+            mqtt.publish("abc")
             time.sleep(1)
-            mqtt.on_message("random_message")
+            mqtt.publish("random_message")
             time.sleep(1)
-            mqtt.on_message("msg")
+            mqtt.publish("msg")
             time.sleep(1)
-            mqtt.on_message("goes_nowhere")
+            mqtt.publish("goes_nowhere")
             time.sleep(1)
         except KeyboardInterrupt:
+            log.info("Shutting down...")
             break
+    for client in clients:
+        client.quit()
+    for client in clients:
+        client.join()
 
 
 if __name__ == "__main__":
